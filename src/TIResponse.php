@@ -39,7 +39,7 @@ class TIResponse
                 throw new Exception('Response is null');
             }
             $result = json_decode($curlResponse, true);
-            if (empty($result->trackingId) || empty($result->payload) || empty($result->status)) {
+            if (!$result || empty($result->trackingId) || empty($result->payload) || empty($result->status)) {
                 $this->payload = $result->payload;
                 $this->trackingId = $result->trackingId;
                 $this->status = $result->status;
