@@ -13,7 +13,8 @@ namespace jamesRUS52\TinkoffInvest;
  *
  * @author james
  */
-class TIInstrumentInfo {
+class TIInstrumentInfo
+{
     //put your code here
     private $trade_status;
     private $min_price_increment;

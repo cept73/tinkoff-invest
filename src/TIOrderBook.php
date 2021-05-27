@@ -15,23 +15,25 @@ namespace jamesRUS52\TinkoffInvest;
  */
 class TIOrderBook
 {
-
     //put your code here
     /**
      * depth of orderbook
      * @var integer
      */
     private $depth;
+
     /**
      * price|count array of bids
      * @var array
      */
     private $asks = array();
+
     /**
      * price|count array of asks
      * @var array
      */
     private $bids = array();
+
     /**
      * FIGI
      * @var string

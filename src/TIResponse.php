@@ -1,8 +1,8 @@
 <?php
 
-
 namespace jamesRUS52\TinkoffInvest;
 
+use app\models\LogTrait;
 use Exception;
 use stdClass;
 
@@ -12,14 +12,18 @@ use stdClass;
  */
 class TIResponse
 {
+    use LogTrait;
+
     /**
      * @var string
      */
     private $trackingId;
+
     /**
      * @var stdClass
      */
     private $payload;
+
     /**
      * @var string
      */
@@ -49,25 +53,10 @@ class TIResponse
                 throw new TIException($this->payload->message . ' [' . $this->payload->code . ']');
             }
         }
-        catch (TIException $e) {
-            throw $e;
-        }
-        catch (\Exception $e) {
-            switch ($curlStatusCode) {
-                case 401:
-                    $error_message = "Authorization error";
-                    break;
-                case 429:
-                    $error_message = "Too Many Requests";
-                    break;
-                default:
-                    $error_message = "Unknown error: ".$e->getMessage()."; Http code: ".$curlStatusCode."; Code: ".$e->getCode();
-                    break;
-            }
-            throw new TIException($error_message);
+        catch (Exception $ex) {
+            $this->setLastErrorByException($ex);
         }
     }
-
 
     /**
      * @return stdClass

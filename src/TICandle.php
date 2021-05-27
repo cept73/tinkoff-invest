@@ -13,7 +13,8 @@ namespace jamesRUS52\TinkoffInvest;
  *
  * @author james
  */
-class TICandle {
+class TICandle
+{
     //put your code here
     private $open;
     private $close;

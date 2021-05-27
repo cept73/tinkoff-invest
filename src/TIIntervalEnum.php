@@ -13,7 +13,8 @@ namespace jamesRUS52\TinkoffInvest;
  *
  * @author james
  */
-abstract class TIIntervalEnum {
+abstract class TIIntervalEnum
+{
     //put your code here
     const MIN1 = '1min';
     const MIN2 = '2min';

@@ -13,7 +13,8 @@ namespace jamesRUS52\TinkoffInvest;
  *
  * @author james
  */
-class TIInstrument {
+class TIInstrument
+{
     //put your code here
     private $figi;
     private $ticker;
@@ -66,6 +67,4 @@ class TIInstrument {
     function getType() {
         return $this->type;
     }
-
-
 }

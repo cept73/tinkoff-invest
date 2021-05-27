@@ -13,7 +13,8 @@ namespace jamesRUS52\TinkoffInvest;
  *
  * @author james
  */
-class TIOrder {
+class TIOrder
+{
     //put your code here
     
     private $orderId;

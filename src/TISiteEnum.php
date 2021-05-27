@@ -13,7 +13,8 @@ namespace jamesRUS52\TinkoffInvest;
  *
  * @author james
  */
-abstract class TISiteEnum {
+abstract class TISiteEnum
+{
     //put your code here
     const EXCHANGE = "https://api-invest.tinkoff.ru/openapi";
     const SANDBOX = "https://api-invest.tinkoff.ru/openapi/sandbox";

@@ -13,7 +13,8 @@ namespace jamesRUS52\TinkoffInvest;
  *
  * @author james
  */
-class TIPortfolioInstrument {
+class TIPortfolioInstrument
+{
     //put your code here
     private $figi;
     private $ticker;

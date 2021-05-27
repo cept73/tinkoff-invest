@@ -22,6 +22,8 @@ use DateInterval;
  */
 class TIClient
 {
+    use ResponseTrait;
+
     public const CANDLE_SUBSCRIBE   = 'subscribe';
     public const CANDLE_UNSUBSCRIBE = 'unsubscribe';
 
@@ -739,11 +741,16 @@ class TIClient
         $error = curl_error($curl);
         curl_close($curl);
 
-        if ($res === 0) {
-            throw new \Exception($error);
-        }
+        try {
+            if ($res === 0) {
+                throw new \Exception($error);
+            }
 
-        return new TIResponse($out, $res);
+            return new TIResponse($out, $res);
+        } catch (Exception $ex) {
+            $this->
+            return null;
+        }
     }
 
     public function initAsyncQueue()

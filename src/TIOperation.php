@@ -13,7 +13,8 @@ namespace jamesRUS52\TinkoffInvest;
  *
  * @author james
  */
-class TIOperation {
+class TIOperation
+{
     //put your code here
     
     private $id;

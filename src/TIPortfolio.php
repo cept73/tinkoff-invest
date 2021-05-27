@@ -13,7 +13,8 @@ namespace jamesRUS52\TinkoffInvest;
  *
  * @author james
  */
-class TIPortfolio {
+class TIPortfolio
+{
     //put your code here
     /**
      *

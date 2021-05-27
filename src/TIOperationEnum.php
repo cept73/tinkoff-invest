@@ -13,7 +13,8 @@ namespace jamesRUS52\TinkoffInvest;
  *
  * @author james
  */
-abstract class TIOperationEnum {
+abstract class TIOperationEnum
+{
     //put your code here
     const BUY = "Buy";
     const SELL = "Sell";
@@ -46,51 +47,30 @@ abstract class TIOperationEnum {
      */
     public static function getOperation($operation)
     {
-        switch ($operation)
-        {
-            case "Buy" : return TIOperationEnum::BUY;
-                break;
-            case "Sell" : return TIOperationEnum::SELL;
-                break;
-            case "BuyCard" : return TIOperationEnum::BUY_CARD;
-                break;
-            case "BrokerCommission" : return TIOperationEnum::BROKER_COMMISSION;
-                break;
-            case "ExchangeCommission" : return TIOperationEnum::EXCHANGE_COMMISSION;
-                break;
-            case "ServiceCommission" : return TIOperationEnum::SERVICE_COMMISSION;
-                break;
-            case "MarginCommission" : return TIOperationEnum::MARGIN_COMMISSION;
-                break;
-            case "OtherCommission" : return TIOperationEnum::OTHER_COMMISSION;
-                break;
-            case "PayIn" : return TIOperationEnum::PAY_IN;
-                break;
-            case "PayOut" : return TIOperationEnum::PAY_OUT;
-                break;
-            case "Tax" : return TIOperationEnum::TAX;
-                break;
-            case "TaxLucre" : return TIOperationEnum::TAX_LUCRE;
-                break;
-            case "TaxDividend" : return TIOperationEnum::TAX_DIVIDEND;
-                break;
-            case "TaxCoupon" : return TIOperationEnum::TAX_COUPON;
-                break;
-            case "TaxBack" : return TIOperationEnum::TAX_BACK;
-                break;
-            case "Repayment" : return TIOperationEnum::REPAYMENT;
-                break;
-            case "PartRepayment" : return TIOperationEnum::PART_REPAYMENT;
-                break;
-            case "Coupon" : return TIOperationEnum::COUPON;
-                break;
-            case "Dividend" : return TIOperationEnum::DIVIDEND;
-                break;
-            case "SecurityIn" : return TIOperationEnum::SECURITY_IN;
-                break;
-            case "SecurityOut" : return TIOperationEnum::SECURITY_OUT;
-                break;
-            default : return null;
+        switch ($operation) {
+            case "Buy": return TIOperationEnum::BUY;
+            case "Sell": return TIOperationEnum::SELL;
+            case "BuyCard": return TIOperationEnum::BUY_CARD;
+            case "BrokerCommission": return TIOperationEnum::BROKER_COMMISSION;
+            case "ExchangeCommission": return TIOperationEnum::EXCHANGE_COMMISSION;
+            case "ServiceCommission": return TIOperationEnum::SERVICE_COMMISSION;
+            case "MarginCommission": return TIOperationEnum::MARGIN_COMMISSION;
+            case "OtherCommission": return TIOperationEnum::OTHER_COMMISSION;
+            case "PayIn": return TIOperationEnum::PAY_IN;
+            case "PayOut": return TIOperationEnum::PAY_OUT;
+            case "Tax": return TIOperationEnum::TAX;
+            case "TaxLucre": return TIOperationEnum::TAX_LUCRE;
+            case "TaxDividend": return TIOperationEnum::TAX_DIVIDEND;
+            case "TaxCoupon": return TIOperationEnum::TAX_COUPON;
+            case "TaxBack": return TIOperationEnum::TAX_BACK;
+            case "Repayment": return TIOperationEnum::REPAYMENT;
+            case "PartRepayment": return TIOperationEnum::PART_REPAYMENT;
+            case "Coupon": return TIOperationEnum::COUPON;
+            case "Dividend": return TIOperationEnum::DIVIDEND;
+            case "SecurityIn": return TIOperationEnum::SECURITY_IN;
+            case "SecurityOut": return TIOperationEnum::SECURITY_OUT;
         }
+
+        return null;
     }
 }

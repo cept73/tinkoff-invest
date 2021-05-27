@@ -13,7 +13,8 @@ namespace jamesRUS52\TinkoffInvest;
  *
  * @author james
  */
-abstract class TICurrencyEnum {
+abstract class TICurrencyEnum
+{
     //put your code here
     const RUB = "RUB";
     const USD = "USD";
@@ -32,27 +33,18 @@ abstract class TICurrencyEnum {
      */
     public static function getCurrency($currency)
     {
-        switch ($currency)
-        {
-            case "RUB" : return TICurrencyEnum::RUB;
-                break;
-            case "USD" : return TICurrencyEnum::USD;
-                break;
-            case "EUR" : return TICurrencyEnum::EUR;
-                break;
-            case "GBP" : return TICurrencyEnum::GBP;
-                break;
-            case "HKD" : return TICurrencyEnum::HKD;
-                break;
-            case "CHF" : return TICurrencyEnum::CHF;
-                break;
-            case "JPY" : return TICurrencyEnum::JPY;
-                break;
-            case "CNY" : return TICurrencyEnum::CNY;
-                break;
-            case "TRY" : return TICurrencyEnum::TRL;
-                break;
-            default : return null;
+        switch ($currency) {
+            case self::RUB: return TICurrencyEnum::RUB;
+            case self::USD: return TICurrencyEnum::USD;
+            case self::EUR: return TICurrencyEnum::EUR;
+            case self::GBP: return TICurrencyEnum::GBP;
+            case self::HKD: return TICurrencyEnum::HKD;
+            case self::CHF: return TICurrencyEnum::CHF;
+            case self::JPY: return TICurrencyEnum::JPY;
+            case self::CNY: return TICurrencyEnum::CNY;
+            case self::TRY: return TICurrencyEnum::TRL;
         }
+
+        return null;
     }
 }

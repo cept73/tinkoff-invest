@@ -13,7 +13,8 @@ namespace jamesRUS52\TinkoffInvest;
  *
  * @author james
  */
-class TIPortfolioCurrency {
+class TIPortfolioCurrency
+{
     //put your code here
     private $balance;
     private $currency;

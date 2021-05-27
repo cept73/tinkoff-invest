@@ -1,12 +1,9 @@
 <?php
 
-
 namespace jamesRUS52\TinkoffInvest;
-
 
 class TICommission
 {
-
     private $currency;
 
     private $value;
@@ -26,5 +23,4 @@ class TICommission
     {
         return $this->value;
     }
-
 }

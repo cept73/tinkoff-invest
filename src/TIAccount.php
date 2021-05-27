@@ -1,12 +1,9 @@
 <?php
 
-
 namespace jamesRUS52\TinkoffInvest;
-
 
 class TIAccount
 {
-
     private $brokerAccountType;
 
     private $brokerAccountId;
@@ -24,5 +21,4 @@ class TIAccount
     function getBrokerAccountId(){
         return $this->brokerAccountId;
     }
-
 }

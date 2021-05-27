@@ -13,6 +13,7 @@ namespace jamesRUS52\TinkoffInvest;
  *
  * @author james
  */
-class TIException extends \Exception {
+class TIException extends \Exception
+{
     //put your code here
 }
