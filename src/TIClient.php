@@ -442,7 +442,12 @@ class TIClient
             return null;
         }
 
-        foreach ($response->getPayload()->currencies as $currency) {
+        $payload = $response->getPayload();
+        if (!$payload) {
+            return null;
+        }
+
+        foreach ($payload->currencies as $currency) {
             $tiCurrency = TICurrencyEnum::getCurrency($currency->currency);
 
             $curr = new TIPortfolioCurrency(
@@ -456,7 +461,12 @@ class TIClient
         $instrList = [];
         $response = $this->sendRequest('/portfolio', 'GET', $params);
 
-        foreach ($response->getPayload()->positions as $position) {
+        $payload = $response->getPayload();
+        if (!$payload) {
+            return null;
+        }
+
+        foreach ($payload->positions as $position) {
             $expectedYieldCurrency = null;
             $expectedYieldValue = null;
             if (isset($position->expectedYield)) {
