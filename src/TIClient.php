@@ -8,6 +8,7 @@
 
 namespace jamesRUS52\TinkoffInvest;
 
+use GuzzleHttp\Handler\CurlMultiHandler;
 use WebSocket\BadOpcodeException;
 use WebSocket\Client;
 use Exception;
@@ -21,6 +22,8 @@ use DateInterval;
  */
 class TIClient
 {
+    public const CANDLE_SUBSCRIBE   = 'subscribe';
+    public const CANDLE_UNSUBSCRIBE = 'unsubscribe';
 
     //put your code here
     /**
@@ -59,6 +62,16 @@ class TIClient
     private $debug = false;
 
     private $ignore_ssl_peer_verification = false;
+
+    /**
+     * @var \CurlMultiHandle store queue of async handles
+     */
+    private $curl_multi_exec_queue;
+
+    /**
+     * @var array list of async CURLs
+     */
+    private $async_curls_list = [];
 
     /**
      *
@@ -274,8 +287,9 @@ class TIClient
             ["ticker" => $ticker]
         );
 
-        if ($response->getPayload()->total == 0)
+        if ($response->getPayload()->total === 0) {
             throw new TIException("Cannot find instrument by ticker {$ticker}");
+        }
 
         $currency = TICurrencyEnum::getCurrency(
             $response->getPayload()->instruments[0]->currency
@@ -485,13 +499,13 @@ class TIClient
      *
      * @param string $figi
      * @param int $lots
-     * @param TIOperationEnum $operation
+     * @param $operation
      * @param double $price
      *
-     * @return TIOrder
+     * @return ?TIOrder
      * @throws TIException
      */
-    public function sendOrder($figi, $lots, $operation, $price = null)
+    public function sendOrder($figi, $lots, $operation, $price = null, $asyc = false)
     {
         $req_body = json_encode(
             (object)[
@@ -503,7 +517,7 @@ class TIClient
 
         $order_type = empty($price) ? "market-order" : "limit-order";
 
-        $response = $this->sendRequest(
+        $requestParams = [
             "/orders/" . $order_type,
             "POST",
             [
@@ -511,8 +525,14 @@ class TIClient
                 "brokerAccountId" => $this->brokerAccountId
             ],
             $req_body
-        );
+        ];
 
+        if ($async) {
+            $this->addAsyncRequest(...$requestParams);
+            return null;
+        }
+
+        $response = $this->sendRequest(...$requestParams);
         return $this->setUpOrder($response, $figi);
     }
 
@@ -648,20 +668,7 @@ class TIClient
         $this->ignore_ssl_peer_verification = $ignore_ssl_peer_verification;
     }
 
-
-
-    /**
-     * Отправка запроса на API
-     *
-     * @param string $action
-     * @param string $method
-     * @param array $req_params
-     * @param string $req_body
-     *
-     * @return TIResponse
-     * @throws TIException
-     */
-    private function sendRequest(
+    public function createRequest(
         $action,
         $method,
         $req_params = [],
@@ -705,6 +712,27 @@ class TIClient
             curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
         }
 
+        return $curl;
+    }
+
+    /**
+     * Отправка запроса на API
+     *
+     * @param string $action
+     * @param string $method
+     * @param array $req_params
+     * @param string $req_body
+     *
+     * @throws TIException
+     */
+    public function sendRequest(
+        $action,
+        $method,
+        $req_params = [],
+        $req_body = null
+    ) {
+        $curl = $this->createRequest($action, $method, $req_params, $req_body);
+
         $out = curl_exec($curl);
         $res = curl_getinfo($curl, CURLINFO_HTTP_CODE);
 
@@ -716,6 +744,63 @@ class TIClient
         }
 
         return new TIResponse($out, $res);
+    }
+
+    public function initAsyncQueue()
+    {
+        $this->curl_multi_exec_queue = curl_multi_init();
+    }
+
+    public function addAsyncRequest(
+        $action,
+        $method,
+        $req_params = [],
+        $req_body = null,
+    ) {
+        if (!$this->curl_multi_exec_queue) {
+            $this->initAsyncQueue();
+        }
+
+        $curl = $this->createRequest($action, $method, $req_params, $req_body);
+        curl_multi_add_handle($curl_multi_exec_queue, $curl);
+        $this->async_curls_list[] = $curl;
+    }
+
+    public function runAsyncRequestsQueue()
+    {
+        if (!($queue = $this->curl_multi_exec_queue)) {
+            return;
+        }
+
+        $runSubConnectionsFunction = function ($queue, &$active) {
+            while (true) {
+                $curlCode = curl_multi_exec($queue, $active);
+                if ($curlCode !== CURLM_CALL_MULTI_PERFORM) {
+                    return $curlCode;
+                }
+            }
+        };
+
+        $active = null;
+        $mrc = $runSubConnectionsFunction($queue, $active);
+        while ($active && $mrc === CURLM_OK) {
+            if (curl_multi_select($queue) !== -1) {
+                $runSubConnectionsFunction($queue, $active);
+            }
+        }
+    }
+
+    public function closeAsyncRequests()
+    {
+        if (!($curl_multi_exec_queue = $this->curl_multi_exec_queue)) {
+            return;
+        }
+
+        foreach ($this->async_curls_list as $channel) {
+            curl_multi_remove_handle($curl_multi_exec_queue, $channel);
+        }
+
+        curl_multi_close($curl_multi_exec_queue);
     }
 
     /**
@@ -745,7 +830,7 @@ class TIClient
      * @param string $action
      * @throws TIException
      */
-    private function candleSubscribtion($figi, $interval, $action = "subscribe")
+    private function candleSubscription($figi, $interval, $action = self::CANDLE_SUBSCRIBE)
     {
         $request = '{
                         "event": "candle:' . $action . '",
@@ -773,9 +858,9 @@ class TIClient
      */
     public function getCandle($figi, $interval)
     {
-        $this->candleSubscribtion($figi, $interval);
+        $this->candleSubscription($figi, $interval);
         $response = $this->wsClient->receive();
-        $this->candleSubscribtion($figi, $interval, "unsubscribe");
+        $this->candleSubscription($figi, $interval, self::ACTION_UNSUBSCRIBE);
         $json = json_decode($response);
         if (empty($json)) {
             throw new TIException('Got empty response for Candle');
@@ -789,7 +874,7 @@ class TIClient
      * @param string $action
      * @throws TIException
      */
-    private function orderbookSubscribtion($figi, $depth, $action = "subscribe")
+    private function orderbookSubscribtion($figi, $depth, $action = self::CANDLE_SUBSCRIBE)
     {
         $request = '{
                         "event": "orderbook:' . $action . '",
@@ -825,7 +910,7 @@ class TIClient
         }
         $this->orderbookSubscribtion($figi, $depth);
         $response = $this->wsClient->receive();
-        $this->orderbookSubscribtion($figi, $depth, "unsubscribe");
+        $this->orderbookSubscribtion($figi, $depth, self::CANDLE_UNSUBSCRIBE);
         $json = json_decode($response);
         if (empty($json)) {
             throw new TIException('Got empty response for OrderBook');
@@ -838,7 +923,7 @@ class TIClient
      * @param string $action
      * @throws TIException
      */
-    private function instrumentInfoSubscribtion($figi, $action = "subscribe")
+    private function instrumentInfoSubscription($figi, $action = self::CANDLE_SUBSCRIBE)
     {
         $request = '{
                         "event": "instrument_info:' . $action . '",
@@ -864,9 +949,9 @@ class TIClient
      */
     public function getInstrumentInfo($figi)
     {
-        $this->instrumentInfoSubscribtion($figi);
+        $this->instrumentInfoSubscription($figi);
         $response = $this->wsClient->receive();
-        $this->instrumentInfoSubscribtion($figi, "unsubscribe");
+        $this->instrumentInfoSubscription($figi, self::CANDLE_UNSUBSCRIBE);
         $json = json_decode($response);
         if (empty($json)) {
             throw new TIException('Got empty response for InstrumentInfo');
@@ -883,7 +968,7 @@ class TIClient
      */
     public function subscribeGettingCandle($figi, $interval)
     {
-        $this->candleSubscribtion($figi, $interval);
+        $this->candleSubscription($figi, $interval);
     }
 
     /**
@@ -902,7 +987,7 @@ class TIClient
      */
     public function subscribeGettingInstrumentInfo($figi)
     {
-        $this->instrumentInfoSubscribtion($figi);
+        $this->instrumentInfoSubscription($figi);
     }
 
     /**
@@ -912,7 +997,7 @@ class TIClient
      */
     public function unsubscribeGettingCandle($figi, $interval)
     {
-        $this->candleSubscribtion($figi, $interval, "unsubscribe");
+        $this->candleSubscription($figi, $interval, self::CANDLE_UNSUBSCRIBE);
     }
 
     /**
@@ -922,7 +1007,7 @@ class TIClient
      */
     public function unsubscribeGettingOrderBook($figi, $depth)
     {
-        $this->orderbookSubscribtion($figi, $depth, "unsubscribe");
+        $this->orderbookSubscribtion($figi, $depth, self::CANDLE_UNSUBSCRIBE);
     }
 
     /**
@@ -931,7 +1016,7 @@ class TIClient
      */
     public function unsubscribeGettingInstrumentInfo($figi)
     {
-        $this->instrumentInfoSubscribtion($figi, "unsubscribe");
+        $this->instrumentInfoSubscription($figi, self::CANDLE_UNSUBSCRIBE);
     }
 
 
@@ -1121,5 +1206,4 @@ class TIClient
             empty($payload->price) ? null : $payload->price,
         );
     }
-
 }

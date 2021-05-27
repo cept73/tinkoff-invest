@@ -34,31 +34,29 @@ class TIPortfolio {
     /**
      * Get balance of currency
      * @param TICurrencyEnum $currency
-     * @return double or false
+     * @return double or null
      */
     public function getCurrencyBalance($currency)
     {
-        foreach ($this->currencies as $curr)
-        {
+        foreach ($this->currencies as $curr) {
             if ($currency === $curr->getCurrency())
                 return $curr->getBalance();
         }
-        return false;
+        return null;
     }
     
     /**
      * Get Lots count of ticker
      * @param string $ticker
-     * @return integer or false
+     * @return integer or null
      */
     public function getInstrumentLots($ticker)
     {
-        foreach ($this->instruments as $instr)
-        {
+        foreach ($this->instruments as $instr) {
             if ($ticker === $instr->getTicker())
                 return $instr->getLots();
         }
-        return false;
+        return null;
     }
     
     /**

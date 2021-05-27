@@ -34,9 +34,9 @@ class TIResponse
     public function __construct($curlResponse, $curlStatusCode)
     {
         try {
-
-            if (empty($curlResponse))
+            if (empty($curlResponse)) {
                 throw new \Exception("Response is null");
+            }
             $result = json_decode($curlResponse);
             if (isset($result->trackingId) && isset($result->payload) && isset($result->status)) {
                 $this->payload = $result->payload;
@@ -84,5 +84,4 @@ class TIResponse
     {
         return $this->status;
     }
-
 }
