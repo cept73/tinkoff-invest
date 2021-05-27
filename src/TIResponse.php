@@ -2,7 +2,6 @@
 
 namespace jamesRUS52\TinkoffInvest;
 
-use app\models\LogTrait;
 use Exception;
 use stdClass;
 
@@ -32,36 +31,34 @@ class TIResponse
     /**
      * TIResponse constructor.
      * @param string $curlResponse
-     * @param $curlStatusCode
-     * @throws TIException
      */
-    public function __construct($curlResponse, $curlStatusCode)
+    public function __construct(string $curlResponse)
     {
         try {
             if (empty($curlResponse)) {
-                throw new \Exception("Response is null");
+                throw new Exception('Response is null');
             }
-            $result = json_decode($curlResponse);
-            if (isset($result->trackingId) && isset($result->payload) && isset($result->status)) {
+            $result = json_decode($curlResponse, true);
+            if (isset($result->trackingId, $result->payload, $result->status)) {
                 $this->payload = $result->payload;
                 $this->trackingId = $result->trackingId;
                 $this->status = $result->status;
             } else {
                 throw new TIException('Required fields are empty');
             }
-            if ($this->status == 'Error') {
+            if ($this->status === 'Error') {
                 throw new TIException($this->payload->message . ' [' . $this->payload->code . ']');
             }
         }
         catch (Exception $ex) {
-            $this->setLastErrorByException($ex);
+            $this->logException($ex);
         }
     }
 
     /**
      * @return stdClass
      */
-    public function getPayload()
+    public function getPayload(): stdClass
     {
         return $this->payload;
     }
@@ -69,7 +66,7 @@ class TIResponse
     /**
      * @return string
      */
-    public function getStatus()
+    public function getStatus(): string
     {
         return $this->status;
     }
