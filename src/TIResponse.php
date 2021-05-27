@@ -47,7 +47,7 @@ class TIResponse
                 throw new TIException('Required fields are empty ' . json_encode($this));
             }
             if ($this->status === 'Error') {
-                throw new TIException($this->payload->message . ' [' . $this->payload->code . ']');
+                throw new TIException(json_encode($this->payload));
             }
         }
         catch (Exception $ex) {
