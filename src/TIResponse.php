@@ -39,12 +39,12 @@ class TIResponse
                 throw new Exception('Response is null');
             }
             $result = json_decode($curlResponse, true);
-            if (isset($result->trackingId, $result->payload, $result->status)) {
+            if (empty($result->trackingId) || empty($result->payload) || empty($result->status)) {
                 $this->payload = $result->payload;
                 $this->trackingId = $result->trackingId;
                 $this->status = $result->status;
             } else {
-                throw new TIException('Required fields are empty');
+                throw new TIException('Required fields are empty ' . json_encode($this));
             }
             if ($this->status === 'Error') {
                 throw new TIException($this->payload->message . ' [' . $this->payload->code . ']');
