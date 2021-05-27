@@ -19,7 +19,7 @@ class TIResponse
     private $trackingId;
 
     /**
-     * @var stdClass
+     * @var ?stdClass
      */
     private $payload;
 
@@ -58,7 +58,7 @@ class TIResponse
     /**
      * @return stdClass
      */
-    public function getPayload(): stdClass
+    public function getPayload(): ?stdClass
     {
         return $this->payload;
     }
