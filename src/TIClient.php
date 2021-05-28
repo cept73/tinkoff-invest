@@ -509,10 +509,10 @@ class TIClient
     public function sendOrder(string $figi, int $lots, $operation, $price = null, bool $async = false): ?TIOrder
     {
         $req_body = json_encode(
-            (object)[
-                'lots' => $lots,
+            [
+                'lots'      => $lots,
                 'operation' => $operation,
-                'price' => $price,
+                'price'     => $price,
             ]
         );
 
