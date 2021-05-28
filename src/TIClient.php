@@ -618,7 +618,12 @@ class TIClient
             return null;
         }
 
-        foreach ($response->getPayload()->operations as $operation) {
+        $payload = $response->getPayload();
+        if (!$payload) {
+            return null;
+        }
+
+        foreach ($payload->operations as $operation) {
             $trades = [];
             foreach ((empty($operation->trades) ? [] : $operation->trades) as $operationTrade)
             {
